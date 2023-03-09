@@ -9,7 +9,9 @@ logging.basicConfig(level=logging.DEBUG)
 class SimpleLogger:
     def __init__(self, file_name="output.log"):
         self.logger = logging.getLogger("destination")
-        self.handler = logging.FileHandler(Path("..", file_name), mode="w")
+        self.handler = logging.FileHandler(
+            Path(__file__).parent.parent.joinpath(file_name), mode="w"
+        )
         self.logger.addHandler(self.handler)
 
     @skip_nones_in_kwargs

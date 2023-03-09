@@ -10,7 +10,7 @@ def main():
         print("You have no internet connection. Exiting...")
         exit(1)
 
-    hosts = hosts_parser.parse(Path(".", "csv", "hosts.csv"))
+    hosts = hosts_parser.parse(Path(__file__).parent.joinpath("csv", "hosts.csv"))
     request.attempt(hosts)
     print("Attempt was successful you can check out the output.log file now")
 
