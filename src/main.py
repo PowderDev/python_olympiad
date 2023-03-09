@@ -11,8 +11,10 @@ def main():
         exit(1)
 
     hosts = hosts_parser.parse(Path(__file__).parent.joinpath("csv", "hosts.csv"))
-    request.attempt(hosts)
-    print("Attempt was successful you can check out the output.log file now")
+    request.send_requests(hosts)
+    print(
+        "All requests was successfully sent you can check out the output.log file now"
+    )
 
 
 if __name__ == "__main__":

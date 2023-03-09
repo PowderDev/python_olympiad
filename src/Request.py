@@ -7,7 +7,7 @@ from SimpleLogger import logger
 
 
 class Request:
-    def attempt(self, hosts):
+    def send_requests(self, hosts):
         for host in hosts:
             domain = host[0]
             ip_addresses = host[1]
