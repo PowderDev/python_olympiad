@@ -1,7 +1,5 @@
 Host;Ports
-ya.ru;xzx1
 localhost;
-;80
 google.com;443
 reg.ru;80,443
 172.16.31.1;53
