@@ -3,6 +3,7 @@ from typing import Union
 
 from utils.enums.host import PortStatus
 from utils.types.host import DOMAIN
+from utils.enums.network import CertificateType
 
 
 @dataclass
@@ -18,3 +19,4 @@ class HostResolveInfo:
     port: int
     port_status: PortStatus
     rtt: float
+    cert_type: Union[CertificateType, None] = None

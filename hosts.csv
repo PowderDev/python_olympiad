@@ -2,5 +2,5 @@ Host;Ports
 localhost;
 google.com;443
 reg.ru;80,443
-172.16.31.1;53
+172.16.31.1;
 192.168.1.253;53
