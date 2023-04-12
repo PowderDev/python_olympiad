@@ -1,22 +1,22 @@
 class InvalidPortException(Exception):
-    def __init__(self, message="Invalid port was provided", port=""):
-        super().__init__(message)
+    def __init__(self, port: str, message=""):
+        self.message = message or f"Invalid port {port} was provided"
         self.port = port
-        self.message = message
-
-
-class InvalidHostException(Exception):
-    def __init__(self, message="Invalid host was provided", host=""):
         super().__init__(message)
-        self.host = host
-        self.message = message
+
+
+class InvalidHostnameException(Exception):
+    def __init__(self, hostname: str, message=""):
+        self.message = message or f"Invalid hostname '{hostname}' was provided"
+        self.hostname = hostname
+        super().__init__(message)
 
 
 class PingFailureException(Exception):
-    def __init__(self, message="Failure occured while doing ping", ip_address=""):
-        super().__init__(message)
+    def __init__(self, ip_address: str, message=""):
+        self.message = message or f"Failure occured while doing ping to {ip_address}"
         self.ip_address = ip_address
-        self.message = message
+        super().__init__(self.message)
 
 
 class PingPermissionDeniedException(Exception):

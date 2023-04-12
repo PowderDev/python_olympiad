@@ -26,8 +26,9 @@ class SimpleLogger:
         info: HostResolveInfo,
         domain="???",
     ) -> None:
+        cert_type_text = f"| CERT - {info.cert_type.name}" if info.cert_type else ""
         self.root_logger.info(
-            f"'{domain}' | {info.ip_address} | {info.rtt} ms | {info.port} | {info.port_status.value}"
+            f"'{domain}' | {info.ip_address} | {info.rtt} ms | {info.port} | {info.port_status.value} {cert_type_text}"
         )
 
     def log_host_error(self, domain_or_address: str) -> None:

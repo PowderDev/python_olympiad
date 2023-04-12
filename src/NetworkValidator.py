@@ -59,5 +59,9 @@ class NetworkValidator:
 
         return port_numbers
 
+    @staticmethod
+    def is_cert_to_check(port: int):
+        return port == 443
+
 
 network_validator = NetworkValidator()

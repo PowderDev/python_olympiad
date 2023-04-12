@@ -5,7 +5,7 @@ import socket
 from Logger import logger
 from NetworkValidator import network_validator
 from utils.exceptions.networkExceptions import (
-    InvalidHostException,
+    InvalidHostnameException,
     PingPermissionDeniedException,
     PingFailureException,
 )
@@ -13,6 +13,7 @@ from utils.dataclasses.host import HostResolveInfo, Host
 from utils.helpers import get_rrt
 from utils.enums.host import PortStatus
 from utils.types.host import DOMAIN
+from CertificateValidator import certificate_validator
 
 
 class NetworkResolver:
@@ -40,49 +41,54 @@ class NetworkResolver:
             result = sock.connect_ex((ip_address, port))
             port_status = PortStatus.OPENED if result == 0 else PortStatus.UNKNOWN
 
-        rtt = get_rrt(start_time)
+            rtt = get_rrt(start_time)
+            cert_type = None
+
+            if network_validator.is_cert_to_check(port):
+                cert_type = certificate_validator.validate(ip_address, port)
 
         return HostResolveInfo(
             ip_address=ip_address,
             port=port,
             port_status=port_status,
             rtt=rtt,
+            cert_type=cert_type,
         )
 
     def ping_address(self, ip_address: str, timeout: int) -> HostResolveInfo:
         try:
-            start_time = time()
             res = ping(ip_address, timeout, count=1)
+            port_status = PortStatus.UNKNOWN
 
             if not res.success():
-                raise PingFailureException(ip_address=ip_address)
-
-            rtt = get_rrt(start_time)
+                raise PingFailureException(ip_address)
+            else:
+                port_status = PortStatus.OPENED
 
             return HostResolveInfo(
                 ip_address=ip_address,
                 port=1,
-                port_status=PortStatus.OPENED,
-                rtt=rtt,
+                port_status=port_status,
+                rtt=res.rtt_avg_ms,
             )
 
         except PermissionError:
             raise PingPermissionDeniedException
 
         except PingFailureException as err:
-            logger.log_ping_failure(ip_address=err.ip_address)
-            raise PingFailureException
+            logger.log_ping_failure(err.ip_address)
+            raise PingFailureException(err.ip_address)
 
-    def populate_host(self, host: str) -> tuple[DOMAIN, str]:
+    def populate_host(self, hostname: str) -> tuple[DOMAIN, str]:
         domain = None
         ip_addresses = []
 
-        if network_validator.validate_domain_name(host):
-            domain = host
-        elif network_validator.validate_ipv4_address(host):
-            ip_addresses = [host]
+        if network_validator.validate_domain_name(hostname):
+            domain = hostname
+        elif network_validator.validate_ipv4_address(hostname):
+            ip_addresses = [hostname]
         else:
-            raise InvalidHostException(host=host)
+            raise InvalidHostnameException(hostname=hostname)
 
         if domain:
             res = socket.gethostbyname_ex(domain)

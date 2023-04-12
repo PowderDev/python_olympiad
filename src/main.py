@@ -11,6 +11,7 @@ argparser = argparse.ArgumentParser()
 argparser.add_argument("-inf", "--infinite", action="store_true", default=False)
 argparser.add_argument("-int", "--interval", default=10, type=int)
 argparser.add_argument("-t", "--timeout", default=1, type=int)
+argparser.add_argument("-f", "--file", default="hosts.csv", type=str)
 
 args = argparser.parse_args()
 
@@ -21,12 +22,15 @@ def main():
             print("You have no internet connection. Shutting down...")
             exit(1)
 
-        hosts_file_path = Path(__file__).parent.parent.joinpath("hosts.csv")
-        hosts = hosts_parser.parse(hosts_file_path)
+        hosts = hosts_parser.parse(args.file)
         network_resolver.resolve_networks(hosts, args.timeout)
-        print("All requests was successfully sent. Check the output.log")
+        print("All hosts was successfully checked. To see, open the output.log")
+
     except Exception as err:
-        print(f"ERROR: {err.message}")
+        if err.message:
+            print(f"Error: {err.message}")
+        else:
+            print(err)
         exit(1)
 
 

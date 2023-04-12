@@ -8,24 +8,27 @@ from NetworkValidator import network_validator
 from NetworkResolver import network_resolver
 from Logger import logger
 from utils.exceptions.networkExceptions import (
-    InvalidHostException,
+    InvalidHostnameException,
     InvalidPortException,
 )
-from utils.exceptions.parseExceptions import CSVHostsParseException
+from utils.exceptions.parseExceptions import (
+    CSVHostsParseException,
+    HostsFileNotFoundException,
+)
 from utils.dataclasses.host import Host
 
 
 class HostsCsvParser:
     @contextlib.contextmanager
-    def open_file(self, file_path: Path) -> Generator[IO, None, None]:
+    def open_file(self, file_path: str) -> Generator[IO, None, None]:
         if not os.path.exists(file_path):
-            raise FileNotFoundError(f"Provided file '{file_path}' not found")
+            raise HostsFileNotFoundException(f"Provided file '{file_path}' not found")
 
         file = open(file_path, "r", encoding="utf-8")
         yield file
         file.close()
 
-    def parse(self, file_path: Path) -> list[Host]:
+    def parse(self, file_path: str) -> list[Host]:
         hosts = []
 
         with self.open_file(file_path) as file:
@@ -50,8 +53,8 @@ class HostsCsvParser:
 
         try:
             (domain, ip_addresses) = network_resolver.populate_host(host)
-        except InvalidHostException as err:
-            logger.log_host_error(err.host)
+        except InvalidHostnameException as err:
+            logger.log_host_error(err.hostname)
             raise CSVHostsParseException
 
         return Host(domain, ip_addresses, valid_port_numbers)
