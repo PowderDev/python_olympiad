@@ -1,29 +1,30 @@
 from OpenSSL import SSL
 from cryptography.x509 import Certificate
-import idna
 import socket
 from datetime import datetime
 
 from utils.enums.network import CertificateType
+from utils.exceptions.networkExceptions import SSLCertificateException
 
 
 class CertificateValidator:
     @staticmethod
     def get_certificate(ip_address, port) -> Certificate:
-        hostname_idna = idna.encode(ip_address)
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.connect((ip_address, port))
+                ctx = SSL.Context(SSL.SSLv23_METHOD)  # most compatible
+                ctx.check_hostname = False
+                ctx.verify_mode = SSL.VERIFY_PEER
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect((ip_address, port))
-            ctx = SSL.Context(SSL.SSLv23_METHOD)  # most compatible
-            ctx.check_hostname = False
-            ctx.verify_mode = SSL.VERIFY_NONE
+                sock_ssl = SSL.Connection(ctx, sock)
+                sock_ssl.set_connect_state()
+                sock_ssl.do_handshake()
 
-            sock_ssl = SSL.Connection(ctx, sock)
-            sock_ssl.set_connect_state()
-            sock_ssl.set_tlsext_host_name(hostname_idna)
-            sock_ssl.do_handshake()
-            cert = sock_ssl.get_peer_certificate()
-            crypto_cert = cert.to_cryptography()
+                cert = sock_ssl.get_peer_certificate()
+                crypto_cert = cert.to_cryptography()
+        except Exception:
+            raise SSLCertificateException
 
         return crypto_cert
 
@@ -33,9 +34,12 @@ class CertificateValidator:
 
     @staticmethod
     def validate(ip_address, port) -> CertificateType:
-        cert = CertificateValidator.get_certificate(ip_address, port)
-        valid = not CertificateValidator.is_expired(cert)
+        try:
+            cert = CertificateValidator.get_certificate(ip_address, port)
+        except SSLCertificateException:
+            return CertificateType.INVALID
 
+        valid = not CertificateValidator.is_expired(cert)
         return CertificateType.VALID if valid else CertificateType.INVALID
 
 

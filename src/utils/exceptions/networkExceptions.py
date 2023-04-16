@@ -23,3 +23,11 @@ class PingPermissionDeniedException(Exception):
     def __init__(self, message="This app don't have the permission to do 'ping'"):
         super().__init__(message)
         self.message = message
+
+
+class SSLCertificateException(Exception):
+    def __init__(
+        self, message="Problem occurred while trying to check SSL certificate"
+    ):
+        super().__init__(message)
+        self.message = message

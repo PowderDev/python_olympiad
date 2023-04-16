@@ -6,7 +6,7 @@ from utils.helperDecorators import skip_nones_in_kwargs
 from utils.dataclasses.host import HostResolveInfo
 
 
-class SimpleLogger:
+class Logger:
     def __init__(self, config_path: Path):
         logging.config.fileConfig(config_path)
         self.root_logger = logging.getLogger("root_logger")
@@ -41,8 +41,8 @@ class SimpleLogger:
 
     def log_ping_failure(self, ip_address: str) -> None:
         self.root_logger.error(
-            f"Error: failure occured while doing 'ping' to {ip_address}"
+            f"Error: failure occurred while doing 'ping' to {ip_address}"
         )
 
 
-logger = SimpleLogger(Path(__file__).parent.parent.joinpath("logging.conf"))
+logger = Logger(Path(__file__).parent.parent.joinpath("logging.conf"))
